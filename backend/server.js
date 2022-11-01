@@ -48,7 +48,7 @@ let carsMockData = [
 
 /** Create GET API. API shoudl return  const carsMockData*/
 
-app.get('/cars-data', (req, res) =>{
+app.get('/get_car', (req, res) =>{
     res.send(carsMockData)
 })
 
@@ -58,14 +58,14 @@ app.get('/cars-data', (req, res) =>{
  *      Check if car with id exists. If Yes return 500. With message 'Car already exists'
  *      If there is no car with the id, add the new car to  carsMockData and return carsMockData as response */
 
- app.post('/cars-data/:id', (req, res) =>{
-   const car = carsMockData.find(car => car.id === parseInt(req.params.id));
+ app.post('/create', (req, res) =>{
+   const car = carsMockData.find(car => car.id === parseInt(req.body.id));
    if(car){
        res.status(500).send('Car already exists');
        return;
    } 
     const carr = {
-        id: req.params.id,
+        id: req.body.id,
         brand: req.body.brand,
         name: req.body.name,
         releaseYear: req.body.releaseYear,
@@ -82,14 +82,14 @@ app.get('/cars-data', (req, res) =>{
 /** Create PUT API. 
  *  Check if car with id exists. If No return 500 with error 'No car with given id exist'. 
  *  If there is car with the requested id, update that car's data in 'carsMockData' and return 'carsMockData' */
- app.put('/cars-data/:id', (req, res) =>{
-    const car = carsMockData.find(car => car.id === parseInt(req.params.id));
+ app.put('/update', (req, res) =>{
+    const car = carsMockData.find(car => car.id === parseInt(req.body.id));
     if(!car){
         res.status(500).send('No car with given id exist');
         return;
     }
     car = {
-        id: req.params.id,
+        id: req.body.id,
         brand: req.body.brand,
         name: req.body.name,
         releaseYear: req.body.name,
@@ -106,8 +106,8 @@ app.get('/cars-data', (req, res) =>{
  *  If there is car with the requested id. Delete that car from 'carsMockData' and return 'carsMockData'
 */
 
-app.delete('/cars-data/:id', (req, res) => {
-    const car = carsMockData.find(car => car.id === parseInt(req.params.id));
+app.delete('/delete_car', (req, res) => {
+    const car = carsMockData.find(car => car.id === parseInt(req.body.id));
     if(!car){
         res.status(500).send('No car with give id exists');
         return;
@@ -117,4 +117,4 @@ app.delete('/cars-data/:id', (req, res) => {
     res.send(carsMockData)
 
 });
-app.listen(3001)
+app.listen(3002)

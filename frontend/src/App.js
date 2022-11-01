@@ -18,6 +18,7 @@ function Cars() {
     color: ''
   }
   const [carFormData, setCarFormData] = useState(carFormInitialData);
+  const [data,setData] = useState([]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,6 +28,12 @@ function Cars() {
     });
   }
 
+  useEffect(() =>{
+    fetch('https://localhost:3002/get_car')
+      .then(resp => resp.json())
+      .then(results => setData(results));
+
+  }, [data]);
   const handleSubmit = (event) => {
     /**
      * Gather all the form data to state variable carFormData
@@ -34,30 +41,33 @@ function Cars() {
      * https://googlechrome.github.io/samples/fetch-api/fetch-post.html
      */
 
-    console.log("Posting request for books api....");
-    fetch('https://localhost:3001/cars-data/:id', {
-          method: 'POST',
-          body: JSON.stringify(event)
-    })
-          .then(res => res.json())
-          .then(data => {
-            console.log("Createed Cars Data: ", data);
-
-          })
     event.preventDefault();
+
+    fetch('https://localhost:3002/create', {
+      methood: 'POST',
+      body: JSON.stringify({
+        id: carFormData.id,
+        name: carFormData.name,
+        brand: carFormData.brand,
+        releaseYear: carFormData.releaseYear,
+        color: carFormData.color
+      }),
+        headers: { 'Content-Type': 'applications/json'},
+    }).then(resp => resp.json()
+      .then(results => setData(results)));
+      setCarFormData(carFormInitialData);
   }
 
-  const handleDelete = () => {
+  const handleDelete = (carId) => {
     /**
      * When clicked on a delete button, get the id of the car's delete button clicked
      * Then use javascript fetch to send DELETE request to NodeJS
      * https://openjavascript.info/2022/01/03/using-fetch-to-make-get-post-put-and-delete-requests/
      */
-        fetch('https://localhost:3001/cars-data/:id', {
+        fetch('https://localhost:3002/delete_car', {
         method: "DELETE",
-        headers: {
-            'Content-type': 'application/json'
-        }
+        body: JSON.stringify({id: carId}),
+        headers: { 'Content-type': 'application/json' }
     })
         .then(res => {
             if (res.ok) { console.log("HTTP request successful") }
@@ -65,7 +75,7 @@ function Cars() {
             return res
         })
         .then(res => res.json())
-        .then(data => console.log(data))
+        .then(data => setData(data))
         .catch(error => console.log(error))
   
   }
@@ -108,20 +118,22 @@ function Cars() {
          Color:
           <input name='color' type="text" value={carFormData.color} onChange={handleInputChange} />
         </label>
-        <input type="submit" value="Submit" />
+        <input type="submit" value="Submit" onClick={(e) => handleSubmit(e)} />
       </form>
        {/** 
            * TODO: Update the code below to see any new proprties added to carFormData
            * */}  
-      <p>ID: {carFormData.id}, name: {carFormData.name}, brand: {carFormData.brand}, releaseYear: {carFormData.releaseYear}, color: {carFormData.color}</p>
+      <p>ID: {carFormData.id}, Car Model: {carFormData.name}, Car Make: {carFormData.brand}, Release Year: {carFormData.releaseYear}, Color: {carFormData.color}</p>
 
       <h2>Cars Data</h2>
       <table>
         <thead>
           <tr>
             <th>ID</th>
-            <th>Car Make</th>
             <th>Car Model</th>
+            <th>Car Make</th>
+            <th>Release Year</th>
+            <th>Color</th>
             <th>Edit</th>
             <th>Delete</th>
           </tr>
@@ -132,48 +144,18 @@ function Cars() {
            * React documentation: https://reactjs.org/docs/lists-and-keys.html
            * How to get data from API: https://www.w3schools.com/jsref/api_fetch.asp
            * */}          
-          <tr>
-            <td>Alfreds Futterkiste</td>
-            <td>Maria Anders</td>
-            <td>Germany</td>
-            <td>✎</td>
-            <td><button className='buttonStyle1'>🗑</button></td>        
-          </tr>
-          <tr>
-            <td>Centro comercial Moctezuma</td>
-            <td>Francisco Chang</td>
-            <td>Mexico</td>
-            <td>✎</td>
-            <td><button className='buttonStyle2'>🗑</button></td>
-          </tr>
-          <tr>
-            <td>Ernst Handel</td>
-            <td>Roland Mendel</td>
-            <td>Austria</td>
-            <td>✎</td>
-            <td>🗑</td>
-          </tr>
-          <tr>
-            <td>Island Trading</td>
-            <td>Helen Bennett</td>
-            <td>UK</td>
-            <td>✎</td>
-            <td>🗑</td>
-          </tr>
-          <tr>
-            <td>Laughing Bacchus Winecellars</td>
-            <td>Yoshi Tannamuri</td>
-            <td>Canada</td>
-            <td>✎</td>
-            <td>🗑</td>
-          </tr>
-          <tr>
-            <td>Magazzini Alimentari Riuniti</td>
-            <td>Giovanni Rovelli</td>
-            <td>Italy</td>
-            <td>✎</td>
-            <td>🗑</td>
-          </tr>
+          {carData.map((car, index) => {
+            return (
+              <tr key={index}>
+                <td>{car.id}</td>
+                <td>{car.brand}</td>
+                <td>{car.name}</td>
+                <td>{car.releaseYear}</td>
+                <td>{car.color}</td>
+                <td>✎</td>
+                <td onClick={() => handleDelete(car.id)}>🗑</td>
+              </tr>)
+          })}
         </tbody>
       </table>
     </div>
